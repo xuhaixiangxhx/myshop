@@ -2,7 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.urls import reverse
 from django.views.generic import View
 from django.conf import settings
-from django.core.mail import send_mail
+from celery_tasks.tasks import send_register_active_email
 from user.models import User
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -83,16 +83,11 @@ class RegisterView(View):
         #激活链接需包含用户的身份信息
 
         #加密用户的身份信息，生成token
-        serializer = Serializer(settings.SECRET_KEY,expires_in=10)
+        serializer = Serializer(settings.SECRET_KEY,expires_in=600)
         token = serializer.dumps({'id':user.id}).decode()
-        print(token)
         #邮件发送
-        subject = 'welcome to myshop'
-        message = ''
-        sender = settings.EMAIL_FROM
-        recive_list = [email]
-        html_msg = '%s,欢迎注册myshop会员!请点击如下链接激活您的账户：<a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>'%(username,token,token)
-        send_mail(subject,message,sender,recive_list,html_message=html_msg)
+        send_register_active_email.delay(email,username,token)
+
         return redirect(reverse('goods:index'))
 
 class ActiveView(View):
@@ -100,7 +95,7 @@ class ActiveView(View):
     def get(self,request,token):
         '''进行用户激活'''
         #解密，获取要激活的用户信息
-        serializer = Serializer(settings.SECRET_KEY,expires_in=10)
+        serializer = Serializer(settings.SECRET_KEY,expires_in=600)
         try:
             user_info = serializer.loads(token)
             #获取用户id
