@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.urls import reverse
 from django.views.generic import View
 from django.conf import settings
+from django.contrib.auth import authenticate,login
 from celery_tasks.tasks import send_register_active_email
 from user.models import User
 
@@ -112,4 +113,48 @@ class LoginView(View):
     '''登录'''
     def get(self,request):
         '''登录页面'''
-        return render(request,'login.html')
+        #判断是否记住用户名
+        if 'username' in request.COOKIES:
+            username = request.COOKIES.get('username')
+            checked ='checked'
+        else:
+            username = ''
+            checked = ''
+        return render(request,'login.html',{'username':username,'checked':checked})
+
+    def post(self,request):
+        '''登录校验'''
+        #接受数据
+        username = request.POST.get('username')
+        password = request.POST.get('pwd')
+        print(username,password)
+
+        #校验数据
+        if not all([username,password]):
+            return render(request,'login.html',{'error_msg','数据不完整'})
+
+        #登录校验
+        user = authenticate(username,password)
+        if user is not None:
+            #用户名密码正确
+            if user.is_active:
+                #用户已激活
+                login(request,user)
+
+                #跳转首页
+                response = redirect(reverse('goods:index'))
+
+                #判断是否需要记住用户名
+                remember = request.POST.get('rem')
+                print(remember)
+                if remember == 'on':
+                    #记住用户名一小时内
+                    response.set_cookie('username',username,max_age=3600)
+                else:
+                    response.delete_cookie()
+
+                return response
+            else:
+                #用户未激活
+                return render(request,'login.html',{'error_msg','用户未激活'})
+

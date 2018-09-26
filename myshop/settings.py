@@ -142,3 +142,6 @@ EMAIL_HOST_USER = 'xuhaixiangxhx@163.com'
 EMAIL_HOST_PASSWORD = 'xhx240824'
 #收件人看到的发件人
 EMAIL_FROM = 'xuhaixiang<xuhaixiangxhx@163.com>'
+
+#celery broker
+BROKER = 'redis://192.168.226.128:6379/15'
