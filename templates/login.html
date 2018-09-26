@@ -21,21 +21,22 @@
 					<h1>用户登录</h1>
 					<a href="#">立即注册</a>
 				</div>
-				<div class="form_input">
-					<form>
+				<div class="form_input" style="margin-bottom: 0">
+					<form method="post">
+                        {% csrf_token %}
 						<input type="text" name="username" class="name_input" value="{{ username }}" placeholder="请输入用户名">
 						<div class="user_error">输入错误</div>
 						<input type="password" name="pwd" class="pass_input" placeholder="请输入密码">
 						<div class="pwd_error">输入错误</div>
 						<div class="more_input clearfix">
-							<input type="checkbox" name="rem" {{ checked }}>
+							<input type="checkbox" name="remember" {{ checked }}>
 							<label>记住用户名</label>
 							<a href="#">忘记密码</a>
 						</div>
 						<input type="submit" name="" value="登录" class="input_submit">
 					</form>
-                    <div style="color: red">{{ error_msg }}</div>
 				</div>
+                <div style="color: red;text-align: center">{{ error_msg }}</div>
 			</div>
 		</div>
 	</div>

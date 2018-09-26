@@ -144,4 +144,20 @@ EMAIL_HOST_PASSWORD = 'xhx240824'
 EMAIL_FROM = 'xuhaixiang<xuhaixiangxhx@163.com>'
 
 #celery broker
-BROKER = 'redis://192.168.226.128:6379/15'
+BROKER = 'redis://192.168.11.128:6379/15'
+
+#设置redis作为django的缓存设置
+CACHES = {
+ "default": {
+  "BACKEND": "django_redis.cache.RedisCache",
+  # 把这里缓存你的redis服务器ip和port
+  "LOCATION": "redis://192.168.11.131:6379/14",
+  "OPTIONS": {
+   "CLIENT_CLASS": "django_redis.client.DefaultClient",
+  }
+ }
+}
+
+#设置redis存储django的session信息
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

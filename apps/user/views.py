@@ -44,9 +44,6 @@ def register(request):
         user.save()
         return redirect(reverse('goods:index'))
 
-def login(request):
-    '''登录'''
-    return render(request,'login.html')
 
 class RegisterView(View):
     '''用户注册'''
@@ -127,34 +124,45 @@ class LoginView(View):
         #接受数据
         username = request.POST.get('username')
         password = request.POST.get('pwd')
-        print(username,password)
 
         #校验数据
         if not all([username,password]):
             return render(request,'login.html',{'error_msg','数据不完整'})
 
         #登录校验
-        user = authenticate(username,password)
+        user = authenticate(username=username, password=password)
         if user is not None:
-            #用户名密码正确
-            if user.is_active:
-                #用户已激活
-                login(request,user)
+            #用户名密码正确,且激活
 
-                #跳转首页
-                response = redirect(reverse('goods:index'))
+            #记录用户登陆状态
+            login(request,user)
 
-                #判断是否需要记住用户名
-                remember = request.POST.get('rem')
-                print(remember)
-                if remember == 'on':
-                    #记住用户名一小时内
-                    response.set_cookie('username',username,max_age=3600)
-                else:
-                    response.delete_cookie()
+            #跳转首页
+            response = redirect(reverse('goods:index'))
 
-                return response
+            #判断是否需要记住用户名
+            remember = request.POST.get('remember')
+
+            if remember == 'on':
+                #记住用户名一小时内
+                response.set_cookie('username',username,max_age=120)
             else:
-                #用户未激活
-                return render(request,'login.html',{'error_msg','用户未激活'})
+                response.delete_cookie('username')
+            return response
+        else:
+            #用户未激活或者用户名密码错误
+            user = User.objects.filter(username = username).first()
+            if user is not None:
+                #用户已注册
 
+                #校验密码
+                is_pwd_correct = user.check_password(password)
+                if not is_pwd_correct:
+                    #密码不正确
+                    return render(request,'login.html',{'error_msg':'密码错误'})
+                else:
+                    #密码正确，说明用户未激活
+                    return render(request,'login.html',{'error_msg':'用户未激活'})
+            else:
+                #用户不存在
+                return render(request,'login.html',{'error_msg':'用户不存在'})

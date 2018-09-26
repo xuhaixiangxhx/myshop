@@ -21,3 +21,4 @@ def send_register_active_email(to_email,username,token):
     recive_list = [to_email]
     html_msg = '%s,<br /><p style="text-indent:4em">欢迎成为myshop购物网站注册会员!请点击如下链接激活您的账户：</p><br /><a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>'%(username,token,token)
     send_mail(subject,message,sender,recive_list,html_message=html_msg)
+    # time.sleep(5)
