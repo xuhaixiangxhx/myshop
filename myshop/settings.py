@@ -161,3 +161,6 @@ CACHES = {
 #设置redis存储django的session信息
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+#login url
+LOGIN_URL = '/user/login'

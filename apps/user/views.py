@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth import authenticate,login
+from utils.mixin import LoginRequireView
 from celery_tasks.tasks import send_register_active_email
 from user.models import User
 
@@ -137,8 +138,13 @@ class LoginView(View):
             #记录用户登陆状态
             login(request,user)
 
+            # 获取登录后所要跳转到的地址
+            # 默认跳转到首页
+            next_url = request.GET.get('next',reverse('goods:index'))
+
+
             #跳转首页
-            response = redirect(reverse('goods:index'))
+            response = redirect(next_url)
 
             #判断是否需要记住用户名
             remember = request.POST.get('remember')
@@ -166,3 +172,21 @@ class LoginView(View):
             else:
                 #用户不存在
                 return render(request,'login.html',{'error_msg':'用户不存在'})
+
+class UserInfoView(LoginRequireView,View):
+    '''用户中心-信息'''
+    def get(self,request):
+        '''显示'''
+        return render(request,'user_center_info.html',{'page':'user'})
+
+class UserOrderView(LoginRequireView,View):
+    '''用户中心-订单'''
+    def get(self,request):
+        '''显示'''
+        return render(request,'user_center_order.html',{'page':'order'})
+
+class UserAddressView(LoginRequireView,View):
+    '''用户中心-地址'''
+    def get(self,request):
+        '''显示'''
+        return render(request,'user_center_site.html',{'page':'address'})
