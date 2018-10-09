@@ -184,8 +184,7 @@ class LogoutView(View):
         return redirect(reverse('goods:index'))
 
 #/user
-class
-    (LoginRequireView,View):
+class UserInfoView(LoginRequireView,View):
     '''用户中心-信息'''
     def get(self,request):
         '''显示'''
