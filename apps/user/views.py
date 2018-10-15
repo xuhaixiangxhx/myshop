@@ -6,13 +6,14 @@ from django.contrib.auth import authenticate,login,logout
 from utils.mixin import LoginRequireView
 from celery_tasks.tasks import send_register_active_email
 from user.models import User,Address
+from goods.models import GoodsSKU
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
+from django_redis import get_redis_connection
 import re
 # Create your views here.
 
-#/user/register
 def register(request):
     '''注册'''
     if request.method == 'GET':
@@ -45,7 +46,7 @@ def register(request):
         user.save()
         return redirect(reverse('goods:index'))
 
-
+#/user/register
 class RegisterView(View):
     '''用户注册'''
     def get(self,request):
@@ -89,6 +90,7 @@ class RegisterView(View):
 
         return redirect(reverse('goods:index'))
 
+#/user/active/(?P<token>.*)
 class ActiveView(View):
     '''用户激活'''
     def get(self,request,token):
@@ -107,6 +109,7 @@ class ActiveView(View):
         except SignatureExpired as e:
             return HttpResponse('链接已失效')
 
+#/user/login
 class LoginView(View):
     '''登录'''
     def get(self,request):
@@ -173,6 +176,7 @@ class LoginView(View):
                 #用户不存在
                 return render(request,'login.html',{'error_msg':'用户不存在'})
 
+#/user/logout
 class LogoutView(View):
     '''注销'''
     def get(self,request):
@@ -194,12 +198,22 @@ class UserInfoView(LoginRequireView,View):
         # request.user.is_authenticated()
         #获取默认地址
         user = request.user
-        try:
-            default_addr = Address.objects.get(user=user,is_default=True)
-        except Address.DoesNotExist:
-            default_addr = None
+        default_addr = Address.objects.get_default_address(user)
 
-        return render(request,'user_center_info.html',{'page':'address','default_addr':default_addr})
+        #获取用户的历史浏览记录
+        con = get_redis_connection("default")
+        history_key = 'history_%d'%user.id
+
+        # 获取用户最新浏览的5个商品的id
+        sku_ids = con.lrange(history_key, 0, 4) # [2,3,1]
+
+        # 遍历获取用户浏览的商品信息
+        goods_li = []
+        for sku_id in sku_ids:
+            goods = GoodsSKU.objects.get(id=sku_id)
+            goods_li.append(goods)
+
+        return render(request,'user_center_info.html',{'goods_li':goods_li,'default_addr':default_addr})
 
 #/user/order
 class UserOrderView(LoginRequireView,View):
@@ -243,10 +257,12 @@ class UserAddressView(LoginRequireView,View):
         #如果该用户存在默认地址，则添加地址不作为默认，否则添加为默认地址
         user = request.user
 
-        try:
-            default_addr = Address.objects.get(user=user,is_default=True)
-        except Address.DoesNotExist:
-            default_addr = None
+        # try:
+        #     default_addr = Address.objects.get(user=user,is_default=True)
+        # except Address.DoesNotExist:
+        #     default_addr = None
+
+        default_addr = Address.objects.get_default_address(user)
 
         is_default = False if default_addr else True
 
