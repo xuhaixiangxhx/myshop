@@ -130,6 +130,10 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+#django存储上传文件路径
+# MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+# MEDIA_URL = '/media/'
+
 # APPEND_SLASH=False
 
 #邮件发送配置
@@ -164,3 +168,6 @@ SESSION_CACHE_ALIAS = "default"
 
 #login url
 LOGIN_URL = '/user/login'
+
+#设置自定义文件存储系统
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.FdfsStorage'
