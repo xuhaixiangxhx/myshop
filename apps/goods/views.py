@@ -30,13 +30,12 @@ def index(request):
     #获取购物车商品数量
     user = request.user
     cart_count = 0
-    print(user.is_authenticated())
 
-    # if user.is_authenticated():
-    #     #用户已登录
-    #     conn = get_redis_connection('default')
-    #     cart_key = 'cart_%d'%user.id
-    #     cart_count = conn.hlen(cart_key)
+    if user.is_authenticated:
+        #用户已登录
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d'%user.id
+        cart_count = conn.hlen(cart_key)
 
     #组织模板上下文
     context = {

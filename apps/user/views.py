@@ -195,7 +195,7 @@ class UserInfoView(LoginRequireView,View):
         #django会给每一个request添加request.user属性（通过session和middleware来实现）
         # 如果用户未登录->user是AnonymousUser类的一个实例对象
         # 如果用户登录->user是User类的一个实例对象
-        # request.user.is_authenticated()
+        # request.user.is_authenticated
         #获取默认地址
         user = request.user
         default_addr = Address.objects.get_default_address(user)

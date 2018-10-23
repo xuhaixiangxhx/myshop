@@ -43,4 +43,4 @@ class FdfsStorage(Storage):
 
     def url(self, name):
         '''返回访问文件的url路径'''
-        return settings.base_url+name
+        return settings.FDFS_URL + name
