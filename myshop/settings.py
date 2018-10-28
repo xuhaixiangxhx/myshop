@@ -148,14 +148,14 @@ EMAIL_HOST_PASSWORD = 'xhx240824'
 EMAIL_FROM = 'xuhaixiang<xuhaixiangxhx@163.com>'
 
 #celery broker
-BROKER = 'redis://192.168.226.128:6379/15'
+BROKER = 'redis://192.168.11.131:6379/15'
 
 #设置redis作为django的缓存设置
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         # 把这里缓存你的redis服务器ip和port
-        "LOCATION": "redis://192.168.226.128:6379/14",
+        "LOCATION": "redis://192.168.11.131:6379/14",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -174,4 +174,4 @@ DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.FdfsStorage'
 # 设置fdfs使用的client.conf文件路径
 FDFS_CLIENT_CONF='./utils/fastdfs/client.conf'
 # 设置fdfs存储服务器上nginx的IP和端口号
-FDFS_URL='http://192.168.226.128:8888/'
+FDFS_URL='http://192.168.11.131:8888/'

@@ -38,7 +38,7 @@ def generate_static_index_html():
 
     #获取首页促销活动信息
     promotion_banners = IndexPromotionBanner.objects.all().order_by('index')
-
+    print('促销活动数量：',len(promotion_banners))
     #获取首页分类商品展示信息（包含图片分类，标题分类）
     for type in types:
         #获取标题分类商品信息
@@ -53,8 +53,8 @@ def generate_static_index_html():
     #组织模板上下文
     context = {
         'types':types,
-        'goods_banners':goods_banners,
         'promotion_banners':promotion_banners,
+        'goods_banners':goods_banners
     }
 
     # 使用模板
@@ -63,9 +63,9 @@ def generate_static_index_html():
     # 2.模板渲染
     static_index_html = temp.render(context)
 
-    index_file_path = os.path.join(settings.BASE_DIR,'static/static_index.html')
+    index_file_path = os.path.join(settings.BASE_DIR,'static/index.html')
     print('静态首页文件全路径',index_file_path)
-    with open(index_file_path,'wb') as f:
+    with open(index_file_path,'w') as f:
         f.write(static_index_html)
 
     print('生成静态页面--end')
