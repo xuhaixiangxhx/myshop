@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from django.views.generic import View
 from django.core.cache import cache
-from goods.models import GoodsType,IndexGoodsBanner,IndexPromotionBanner,IndexTypeGoodsBanner
+from goods.models import GoodsType,IndexGoodsBanner,IndexPromotionBanner,IndexTypeGoodsBanner,GoodsSKU
 from django_redis import get_redis_connection
+from order.models import OrderGoods
 # Create your views here.
 
 #http://127.0.0.1:8000
@@ -60,3 +61,53 @@ class IndexView(View):
 
         return render(request,'index.html',context)
 
+# /goods/商品id
+class DetailView(View):
+    '''商品详情页'''
+    def get(self,request,goods_id):
+        '''显示商品详情页面'''
+        # return HttpResponse(goods_id)
+        goods_sku = GoodsSKU.objects.get(id=goods_id)
+
+        #获取商品的分类信息
+        types = GoodsType.objects.all()
+
+        #获取商品的评论信息
+        goods_orders = OrderGoods.objects.filter(sku = goods_sku).exclude(comment='')
+
+        #获取新品信息
+        new_goods = GoodsSKU.objects.all().order_by('-create_time')[0:2]
+
+        #获取同一个SPU的其他规格商品
+        same_spu_goods = GoodsSKU.objects.filter(goods=goods_sku.goods).exclude(id=goods_id)
+
+        #获取用户购物车中商品的数目
+        user = request.user
+        cart_count = 0
+
+        if user.is_authenticated:
+            #用户已登录
+            conn = get_redis_connection('default')
+            cart_key = 'cart_%s'%user.id
+            cart_count = conn.hlen(cart_key)
+
+            #添加用户浏览记录
+            history_key = 'history_%s'%user.id
+            # 移除列表中的goods_id
+            conn.lrem(history_key, 0, goods_id)
+            # 把goods_id插入到列表的左侧
+            conn.lpush(history_key, goods_id)
+            # 只保存用户最新浏览的5条信息
+            conn.ltrim(history_key, 0, 4)
+
+        #组织模板上下文
+        context = {
+            'goods_sku':goods_sku,
+            'types':types,
+            'goods_orders':goods_orders,
+            'new_goods':new_goods,
+            'same_spu_goods':same_spu_goods,
+            'cart_count':cart_count
+        }
+
+        return render(request,'detail.html',context)
