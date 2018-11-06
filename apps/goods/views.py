@@ -143,7 +143,7 @@ class ListView(View):
             goods_skus = GoodsSKU.objects.filter(type=type).order_by('-id')
 
         #对数据进行分页
-        paginator = Paginator(goods_skus,1)
+        paginator = Paginator(goods_skus,3)
 
         #获取页码
         try:
