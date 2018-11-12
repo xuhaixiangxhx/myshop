@@ -65,7 +65,8 @@
             <div class="total">总价：<em>16.80元</em></div>
             <div class="operate_btn">
                 <a href="javascript:;" class="buy_btn">立即购买</a>
-                <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+                {% csrf_token %}
+                <a href="javascript:;" goods_id="{{ goods_sku.id }}" class="add_cart" id="add_cart">加入购物车</a>
             </div>
         </div>
     </div>
@@ -117,6 +118,60 @@
 {% block bottom-files %}
     <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
     <script type="text/javascript">
+        update_goods_amount()
+        //计算商品总价格
+        function update_goods_amount(){
+            //获取商品数量与单价
+            var count = $('.num_show').val();
+            var price = $('.show_pirze').children('em').text()
+            //计算商品的总价
+            count = parseInt(count);
+            price = parseFloat(price);
+            var amount = price*count;
+            //设置商品的总价
+            $('.total').children('em').text(amount.toFixed(2)+'元')
+        }
+        //增加商品的数量
+        $('.add').click(function(){
+            //获取当前商品数量
+            var count = $('.num_show').val();
+            //商品数量+1
+            count = parseInt(count)+1;
+            //重新设置商品数量
+            $('.num_show').val(count);
+            //更新商品总价
+            update_goods_amount();
+        })
+
+        //减少商品的数量
+        $('.minus').click(function(){
+            //获取当前商品数量
+            var count = $('.num_show').val();
+
+            if(count>1){
+                //商品数量-1
+                count = parseInt(count)-1;
+                //重新设置商品数量
+                $('.num_show').val(count);
+            }
+            //更新商品总价
+            update_goods_amount();
+        })
+        //手动输入商品的数量
+        $('.num_show').blur(function(){
+            //获取商品数量
+            var count = $(this).val();
+            //检查count是否合法
+            if(isNaN(count)||parseInt(count)<=0){
+                count = 1;
+            }
+            //重新设置商品的数量
+            $(this).val(parseInt(count))
+            //更新商品的价格
+            update_goods_amount();
+        })
+
+        //加入购车车
         var $add_x = $('#add_cart').offset().top;
         var $add_y = $('#add_cart').offset().left;
 
@@ -124,17 +179,46 @@
         var $to_y = $('#show_count').offset().left;
 
         $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
-        $('#add_cart').click(function () {
-            $(".add_jump").stop().animate({
+
+        $('.add_cart').click(function(){
+            var goods_id = $('.add_cart').attr('goods_id');
+            var goods_num = $('.num_show').val();
+            var csrf_token = $('input[name="csrfmiddlewaretoken"]').val()
+            var params = {'goods_id':goods_id,'goods_num':goods_num,'csrfmiddlewaretoken':csrf_token};
+            $.post('/cart/add',params,function(data){
+                //console.log(data);
+                //console.log(data.total_count);
+                $(".add_jump").stop().animate({
                         'left': $to_y + 7,
                         'top': $to_x + 7
                     },
                     "fast", function () {
                         $(".add_jump").fadeOut('fast', function () {
-                            $('#show_count').html(2);
+                            $('#show_count').html(data.total_count);
                         });
 
                     });
+            })
         })
+
+{#        var $add_x = $('#add_cart').offset().top;#}
+{#        var $add_y = $('#add_cart').offset().left;#}
+{##}
+{#        var $to_x = $('#show_count').offset().top;#}
+{#        var $to_y = $('#show_count').offset().left;#}
+{##}
+{#        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})#}
+{#        $('#add_cart').click(function () {#}
+{#            $(".add_jump").stop().animate({#}
+{#                        'left': $to_y + 7,#}
+{#                        'top': $to_x + 7#}
+{#                    },#}
+{#                    "fast", function () {#}
+{#                        $(".add_jump").fadeOut('fast', function () {#}
+{#                            $('#show_count').html(2);#}
+{#                        });#}
+{##}
+{#                    });#}
+{#        })#}
     </script>
 {% endblock %}
