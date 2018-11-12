@@ -143,7 +143,7 @@ class ListView(View):
             goods_skus = GoodsSKU.objects.filter(type=type).order_by('-id')
 
         #对数据进行分页
-        paginator = Paginator(goods_skus,3)
+        paginator = Paginator(goods_skus,2)
 
         #获取页码
         try:
@@ -170,7 +170,7 @@ class ListView(View):
         elif page > num_pages-3:
             pages = range(num_pages-5, num_pages+1)
         else:
-            pages = range(num_pages-2, num_pages+3)
+            pages = range(page-2, page+3)
 
         #新品信息
         new_goods = GoodsSKU.objects.filter(type=type).order_by('-create_time')[0:2]

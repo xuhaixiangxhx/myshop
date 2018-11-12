@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="total_count">全部商品<em>2</em>件</div>
+    <div class="total_count">全部商品<em>{{ total_count }}</em>件</div>
     <ul class="cart_list_th clearfix">
         <li class="col01">商品名称</li>
         <li class="col02">商品单位</li>
@@ -18,6 +18,25 @@
         <li class="col05">小计</li>
         <li class="col06">操作</li>
     </ul>
+    {% for goods in goods_list %}
+        <ul class="cart_list_td clearfix">
+            <li class="col01"><input type="checkbox" name="" checked></li>
+            <li class="col02"><img src="{{ goods.image.url }}"></li>
+            <li class="col03">奇异果<br><em>{{ goods.price }}元/{{ goods.unit }}</em></li>
+            <li class="col04">{{ goods.unit }}</li>
+            <li class="col05">{{ goods.amount }}元</li>
+            <li class="col06">
+                <div class="num_add">
+                    <a href="javascript:;" class="add fl">+</a>
+                    <input type="text" class="num_show fl" value="1">
+                    <a href="javascript:;" class="minus fl">-</a>
+                </div>
+            </li>
+            <li class="col07">25.80元</li>
+            <li class="col08"><a href="javascript:;">删除</a></li>
+        </ul>
+    {% endfor %}
+    <!--
     <ul class="cart_list_td clearfix">
         <li class="col01"><input type="checkbox" name="" checked></li>
         <li class="col02"><img src="images/goods/goods012.jpg"></li>
@@ -51,12 +70,12 @@
         <li class="col07">16.80元</li>
         <li class="col08"><a href="javascript:;">删除</a></li>
     </ul>
-
+    -->
 
     <ul class="settlements">
         <li class="col01"><input type="checkbox" name="" checked=""></li>
         <li class="col02">全选</li>
-        <li class="col03">合计(不含运费)：<span>¥</span><em>42.60</em><br>共计<b>2</b>件商品</li>
+        <li class="col03">合计(不含运费)：<span>¥</span><em>{{ total_price }}</em><br>共计<b>{{ total_count }}</b>件商品</li>
         <li class="col04"><a href="place_order.html">去结算</a></li>
     </ul>
 {% endblock %}
