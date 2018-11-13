@@ -188,16 +188,19 @@
             $.post('/cart/add',params,function(data){
                 //console.log(data);
                 //console.log(data.total_count);
-                $(".add_jump").stop().animate({
-                        'left': $to_y + 7,
-                        'top': $to_x + 7
-                    },
-                    "fast", function () {
-                        $(".add_jump").fadeOut('fast', function () {
-                            $('#show_count').html(data.total_count);
-                        });
-
-                    });
+                if(data.res == 5) {
+                    $(".add_jump").stop().animate({
+                                'left': $to_y + 7,
+                                'top': $to_x + 7
+                            },
+                            "fast", function () {
+                                $(".add_jump").fadeOut('fast', function () {
+                                    $('#show_count').html(data.total_count);
+                                });
+                            });
+                }else{
+                    alert(data.errmsg);
+                }
             })
         })
 
