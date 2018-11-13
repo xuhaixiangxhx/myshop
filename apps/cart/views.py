@@ -73,7 +73,6 @@ class CartInfoView(LoginRequireView, View):
         cart_key = 'cart_%d'%user.id
         #{商品id:商品数量}
         cart_dict = conn.hgetall(cart_key)
-
         #初始化购物车商品列表，商品总数量，商品总价格
         goods_list = []
         total_count = 0
@@ -84,7 +83,7 @@ class CartInfoView(LoginRequireView, View):
             #计算商品小计
             amount = goods.price*int(count)
             #动态添加count,amount属性
-            goods.count = count
+            goods.count = int(count)
             goods.amount = amount
             #添加商品到列表
             goods_list.append(goods)
