@@ -168,7 +168,7 @@ class ListView(View):
         elif page <= 3:
             pages = range(1, 6)
         elif page > num_pages-3:
-            pages = range(num_pages-5, num_pages+1)
+            pages = range(num_pages-4, num_pages+1)
         else:
             pages = range(page-2, page+3)
 

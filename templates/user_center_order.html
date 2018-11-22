@@ -25,7 +25,7 @@
                             </ul>
                         {% endfor %}
                     </td>
-                    <td width="15%">{{ order.total_price|add:order.transit_price }}(含运费{{ order.transit_price }})元</td>
+                    <td width="15%">{{ order.all_price|floatformat:2 }}(含运费{{ order.transit_price }})元</td>
                     <td width="15%">{{ order.status_name }}</td>
                     <td width="15%"><a href="#" class="oper_btn">去付款</a></td>
                 </tr>

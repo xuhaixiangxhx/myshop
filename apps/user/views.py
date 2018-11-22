@@ -239,6 +239,8 @@ class UserOrderView(LoginRequireView,View):
             order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
             #动态给订单添加订单商品信息属性
             order.order_skus = order_skus
+            #动态添加订单总费用(商品总费用+运费)属性
+            order.all_price = order.total_price + order.transit_price
 
         #分页，每页显示2个订单
         paginator = Paginator(orders,2)
