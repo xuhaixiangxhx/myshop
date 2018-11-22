@@ -18,6 +18,6 @@ urlpatterns = [
     # path(r'address',login_required(UserAddressView.as_view()),name='address'),    #用户中心-地址
 
     path(r'',UserInfoView.as_view(),name='user'),    #用户中心-信息
-    path(r'order',UserOrderView.as_view(),name='order'),    #用户中心-订单
+    re_path(r'order/(?P<page>\d+)',UserOrderView.as_view(),name='order'),    #用户中心-订单
     path(r'address',UserAddressView.as_view(),name='address'),    #用户中心-地址
 ]

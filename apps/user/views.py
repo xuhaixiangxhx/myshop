@@ -3,10 +3,13 @@ from django.urls import reverse
 from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth import authenticate,login,logout
+from django.core.paginator import Paginator
 from utils.mixin import LoginRequireView
 from celery_tasks.tasks import send_register_active_email
+
 from user.models import User,Address
 from goods.models import GoodsSKU
+from order.models import OrderInfo, OrderGoods
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
@@ -218,9 +221,59 @@ class UserInfoView(LoginRequireView,View):
 #/user/order
 class UserOrderView(LoginRequireView,View):
     '''用户中心-订单'''
-    def get(self,request):
+    def get(self,request,page):
         '''显示'''
-        return render(request,'user_center_order.html',{'page':'order'})
+        # print('page->', page)
+        user = request.user
+        #获取所有订单
+        orders = OrderInfo.objects.filter(user=user).order_by('-create_time')
+        #遍历订单获取商品信息
+        for order in orders:
+            order_skus = OrderGoods.objects.filter(order=order)
+            #遍历order_skus计算商品小计
+            for order_sku in order_skus:
+                amount = order_sku.price * order_sku.count
+                #动态给商品添加小计属性
+                order_sku.amount = amount
+            #动态给订单增加属性，保存订单标题
+            order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
+            #动态给订单添加订单商品信息属性
+            order.order_skus = order_skus
+
+        #分页，每页显示2个订单
+        paginator = Paginator(orders,2)
+        #一个多少页
+        num_pages = paginator.num_pages
+
+        try:
+            page = int(page)
+        except Exception as e:
+            page=1
+
+        if page > num_pages:
+            page=1
+
+
+        #获取page页的订单
+        order_page = paginator.page(page)
+
+        #页码控制，做多显示5个页码
+        if num_pages < 5:
+            pages = range(1, num_pages + 1)
+        elif page <= 3:
+            pages = range(1, 6)
+        elif num_pages - page <= 2:
+            pages = range(num_pages - 4, num_pages + 1)
+        else:
+            pages = range(page - 2, page + 3)
+
+        context = {
+            'order_page':order_page,
+            'pages':pages,
+            'page':'order'
+        }
+
+        return render(request,'user_center_order.html',context)
 
 #/user/address
 class UserAddressView(LoginRequireView,View):
