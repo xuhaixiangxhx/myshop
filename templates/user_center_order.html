@@ -4,6 +4,7 @@
 
 {% block content-right %}
     <div class="right_content clearfix">
+        {% csrf_token %}
         <h3 class="common_title2">全部订单</h3>
         {% for order in order_page %}
             <ul class="order_list_th w978 clearfix">
@@ -27,7 +28,7 @@
                     </td>
                     <td width="15%">{{ order.all_price|floatformat:2 }}(含运费{{ order.transit_price }})元</td>
                     <td width="15%">{{ order.status_name }}</td>
-                    <td width="15%"><a href="#" class="oper_btn">去付款</a></td>
+                    <td width="15%"><a href="javascript:;" class="oper_btn" order_id="{{ order.order_id }}" status="{{ order.order_status }}">去付款</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -98,9 +99,9 @@
             {% endif %}
             {% for pindex in pages %}
                 {% if pindex == order_page.number %}
-                    <a href="#" class="active">{{ pindex }}</a>
+                    <a href="{% url 'user:order' pindex %}" class="active">{{ pindex }}</a>
                 {% else %}
-                    <a href="#">{{ pindex }}</a>
+                    <a href="{% url 'user:order' pindex %}">{{ pindex }}</a>
                 {% endif %}
             {% endfor %}
             {% if order_page.has_next %}
@@ -119,4 +120,48 @@
         </div>
         -->
     </div>
+{% endblock %}
+{% block bottom-files %}
+    <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script>
+        //调整订单状态
+        $('.oper_btn').each(function () {
+            // 获取支付状态
+            status = $(this).attr('status')
+            if (status == 1){
+                $(this).text('去支付')
+            }
+            else if (status == 4){
+                $(this).text('去评价')
+            }
+            else if (status == 5){
+                $(this).text('已完成')
+            }
+        })
+        //支付按钮绑定事件
+        $('.oper_btn').click(function(){
+            //获取 csrf token
+            var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+            //获取订单id
+            var order_id = $(this).attr('order_id');
+            params={'order_id':order_id,'csrfmiddlewaretoken':csrf_token};
+            $.post('/order/pay', params, function(data){
+{#                console.log(data.res,typeof(data.res));#}
+                if(data.res == 3){
+                    //进入支付界面
+                    window.open(data.pay_url);
+                    //浏览器访问/order/check获取支付交易结果
+                    $.post('/order/check', params, function(data){
+                        if(data.res=3){
+                            location.reload()
+                        }else {
+                            alert(data.errmsg)
+                        }
+                    })
+                }else {
+                    alert(data.errmsg)
+                }
+            })
+        })
+    </script>
 {% endblock %}

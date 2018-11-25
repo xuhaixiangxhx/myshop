@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path
-from order.views import OrderPlaceView,OrderCommitView
+from order.views import OrderPlaceView,OrderCommitView,OrderPayView,OrderCheckView
 
 
 app_name = 'order'
@@ -9,4 +9,6 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path(r'place', OrderPlaceView.as_view(), name='place'),     #订单提交页面显示
     path(r'commit', OrderCommitView.as_view(), name='commit'),      #订单创建
+    path(r'pay', OrderPayView.as_view(), name='pay'),      #订单支付
+    path(r'check', OrderCheckView.as_view(), name='check'),      #订单支付结果查询
 ]
