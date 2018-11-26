@@ -346,7 +346,7 @@ class OrderPayView(View):
 #ajax post
 #/order/check
 class OrderCheckView(View):
-    '''订单支付结果查询+'''
+    '''订单支付结果查询'''
     def post(self,request):
         '''订单支付结果查询'''
         user = request.user
@@ -373,6 +373,7 @@ class OrderCheckView(View):
         #调用支付宝的交易查询接口
         while True:
             response = alipay.api_alipay_trade_query(order_id)
+            print(response)
           #   response = {
           #   "trade_no": "2017032121001004070200176844",
           #   "code": "10000",
@@ -416,3 +417,17 @@ class OrderCheckView(View):
             else:
                 #支付出错
                 return JsonResponse({'res':4,'errmsg':'支付失败'})
+#订单商品品论
+#/order/comment
+class OrderCommentkView(View):
+    '''订单商品评论'''
+    def get(self, request, order_id):
+        '''显示订单商品评论页面'''
+        user = request.user
+        #获取参数
+        order_id=order_id
+
+        return render(request, 'order_comment.html', {'order_id':order_id})
+        # return HttpResponse('OrderCommentkView')
+    def post(self, request, order_id):
+        '''订单商品评论提交'''

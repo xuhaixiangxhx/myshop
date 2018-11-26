@@ -19,7 +19,7 @@
                     <td width="55%">
                         {% for order_sku in order.order_skus %}
                             <ul class="order_goods_list clearfix">
-                                <li class="col01"><img src="{{ order_sku.sku.image.url }}"></li>
+                                <li class="col01"><a href="{% url 'goods:detail' order_sku.sku.id %}"><img src="{{ order_sku.sku.image.url }}"></a></li>
                                 <li class="col02">{{ order_sku.name }}<em>{{ order_sku.price }}元/{{ order_sku.sku.unite }}</em></li>
                                 <li class="col03">{{ order_sku.count }}</li>
                                 <li class="col04">{{ order_sku.amount }}元</li>
@@ -138,30 +138,36 @@
                 $(this).text('已完成')
             }
         })
-        //支付按钮绑定事件
+
         $('.oper_btn').click(function(){
-            //获取 csrf token
-            var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+            //获取订单状态
+            var status = $(this).attr('status')
             //获取订单id
             var order_id = $(this).attr('order_id');
-            params={'order_id':order_id,'csrfmiddlewaretoken':csrf_token};
-            $.post('/order/pay', params, function(data){
-{#                console.log(data.res,typeof(data.res));#}
-                if(data.res == 3){
-                    //进入支付界面
-                    window.open(data.pay_url);
-                    //浏览器访问/order/check获取支付交易结果
-                    $.post('/order/check', params, function(data){
-                        if(data.res=3){
-                            location.reload()
-                        }else {
-                            alert(data.errmsg)
-                        }
-                    })
-                }else {
-                    alert(data.errmsg)
-                }
-            })
+
+            if(status==1){          //去支付
+                //获取 csrf token
+                var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+                params={'order_id':order_id,'csrfmiddlewaretoken':csrf_token};
+                $.post('/order/pay', params, function(data){
+                    if(data.res == 3){
+                        //进入支付界面
+                        window.open(data.pay_url);
+                        //浏览器访问/order/check获取支付交易结果
+                        $.post('/order/check', params, function(data){
+                            if(data.res=3){
+                                location.reload()
+                            }else {
+                                alert(data.errmsg)
+                            }
+                        })
+                    }else {
+                        alert(data.errmsg)
+                    }
+                })
+            }else if (status==4){       //去评论
+                location.href='/order/comment/'+order_id;
+            }
         })
     </script>
 {% endblock %}
