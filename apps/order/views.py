@@ -417,6 +417,7 @@ class OrderCheckView(View):
             else:
                 #支付出错
                 return JsonResponse({'res':4,'errmsg':'支付失败'})
+
 #订单商品品论
 #/order/comment
 class OrderCommentkView(View):
@@ -426,8 +427,50 @@ class OrderCommentkView(View):
         user = request.user
         #获取参数
         order_id=order_id
+        #校验数据
+        if not order_id:
+            return redirect(reverse('user:order',args=(1,)))
+        try:
+            order = OrderInfo.objects.get(order_id=order_id, user=user)
+        except OrderInfo.DoesNotExist as e:
+            return redirect(reverse('user:order',args=(1,)))
 
-        return render(request, 'order_comment.html', {'order_id':order_id})
-        # return HttpResponse('OrderCommentkView')
+        #动态给订单增加属性，保存订单标题
+        order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
+
+        #获取订单商品信息
+        order_skus = OrderGoods.objects.filter(order_id=order_id)
+        for order_sku in order_skus:
+            # 计算商品的小计
+            amount = order_sku.count*order_sku.price
+            # 动态给order_sku增加属性amount,保存商品小计
+            order_sku.amount = amount
+        # 动态给order增加属性order_skus, 保存订单商品信息
+        order.order_skus = order_skus
+
+        return render(request, 'order_comment.html', {'order':order})
+
     def post(self, request, order_id):
         '''订单商品评论提交'''
+        user = request.user
+        #获取参数
+        order_id=order_id
+        #校验数据
+        if not order_id:
+            return redirect(reverse('user:order',args=(1,)))
+        try:
+            order = OrderInfo.objects.get(order_id=order_id, user=user)
+        except OrderInfo.DoesNotExist as e:
+            return redirect(reverse('user:order',args=(1,)))
+
+        #获取订单商品信息
+        order_skus = OrderGoods.objects.filter(order_id=order_id)
+        #保存评论
+        for order_sku in order_skus:
+            comment = request.POST.get('content_%d'%order_sku.id)
+            order_sku.comment = comment
+            order_sku.save()
+        #完成订单
+        order.order_status = 5
+        order.save()
+        return redirect(reverse("user:order", kwargs={"page": 1}))
