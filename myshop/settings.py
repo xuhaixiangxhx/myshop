@@ -79,6 +79,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myshop.wsgi.application'
 
 
+#项目部署所在服务器地址
+PROJECT_SERVER = "192.168.11.131"
+#REDIS服务器地址
+REDIS_SERVER = "192.168.11.131"
+#fdfs存储服务器地址
+FDFS_SERVER = "192.168.11.131"
+#MYSQL部署地址
+MYSQL_SERVER = "192.168.11.132"
+
+
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -95,7 +105,7 @@ DATABASES = {
         'NAME': 'myshop',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '192.168.226.129',
+        'HOST': '%s'%MYSQL_SERVER,
         'PORT':3306,
     }
 }
@@ -147,15 +157,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # APPEND_SLASH=False
 
-#项目部署所在服务器地址
-PROJECT_SERVER = "192.168.226.128"
-#REDIS服务器地址
-REDIS_SERVER = "192.168.226.128"
-#fdfs存储服务器地址
-FDFS_SERVER = "192.168.226.128"
-#MYSQL部署地址
-MYSQL_SERVER = "192.168.226.128"
-
 
 #邮件发送配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -178,7 +179,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         # 把这里缓存你的redis服务器ip和port
         # "LOCATION": "redis://192.168.226.128:6379/14",
-        "LOCATION": "redis://%s:6379/14"%MYSQL_SERVER,
+        "LOCATION": "redis://%s:6379/14"%REDIS_SERVER,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
