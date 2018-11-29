@@ -420,7 +420,7 @@ class OrderCheckView(View):
 
 #订单商品品论
 #/order/comment
-class OrderCommentkView(View):
+class OrderCommentView(View):
     '''订单商品评论'''
     def get(self, request, order_id):
         '''显示订单商品评论页面'''

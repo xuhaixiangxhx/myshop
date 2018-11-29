@@ -39,9 +39,11 @@
                 <li><img src="{% static 'images/slide04.jpg' %}" alt="幻灯片"></li>
             </ul>
             -->
-            {% for banner in goods_banners  %}
-				    <li><a href="#"><img src="{{ banner.image.url }}" alt="幻灯片"></a></li>
-                {% endfor %}
+            <ul class="slide_pics">
+                {% for banner in goods_banners  %}
+                        <li><a href="#"><img src="{{ banner.image.url }}" alt="幻灯片"></a></li>
+                    {% endfor %}
+            </ul>
             <div class="prev"></div>
             <div class="next"></div>
             <ul class="points"></ul>

@@ -82,13 +82,23 @@ WSGI_APPLICATION = 'myshop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'myshop',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': '192.168.226.129',
+        'PORT':3306,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -137,6 +147,16 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # APPEND_SLASH=False
 
+#项目部署所在服务器地址
+PROJECT_SERVER = "192.168.226.128"
+#REDIS服务器地址
+REDIS_SERVER = "192.168.226.128"
+#fdfs存储服务器地址
+FDFS_SERVER = "192.168.226.128"
+#MYSQL部署地址
+MYSQL_SERVER = "192.168.226.128"
+
+
 #邮件发送配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
@@ -149,14 +169,16 @@ EMAIL_HOST_PASSWORD = 'xhx240824'
 EMAIL_FROM = 'xuhaixiang<xuhaixiangxhx@163.com>'
 
 #celery broker
-BROKER = 'redis://192.168.11.131:6379/15'
+# BROKER = 'redis://192.168.226.128:6379/15'
+BROKER = 'redis://%s/15'%PROJECT_SERVER
 
 #设置redis作为django的缓存设置
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         # 把这里缓存你的redis服务器ip和port
-        "LOCATION": "redis://192.168.11.131:6379/14",
+        # "LOCATION": "redis://192.168.226.128:6379/14",
+        "LOCATION": "redis://%s:6379/14"%MYSQL_SERVER,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -175,7 +197,8 @@ DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.FdfsStorage'
 # 设置fdfs使用的client.conf文件路径
 FDFS_CLIENT_CONF='./utils/fastdfs/client.conf'
 # 设置fdfs存储服务器上nginx的IP和端口号
-FDFS_URL='http://192.168.11.131:8888/'
+# FDFS_URL='http://192.168.226.128:8888/'
+FDFS_URL='http://%s:8888/'%FDFS_SERVER
 
 # 全文检索框架的配置
 HAYSTACK_CONNECTIONS = {
